@@ -88,3 +88,18 @@ console.log(`No gamut maping, only RGB -> Oklab -> RGB: \t ${noGamutOccurences} 
 console.log(`Gamut maping, lower part (simplex):   \t\t ${gamutLowerOccurences} times, \t so ${(gamutLowerOccurences / nb_test) * 100}%`);
 // prettier-ignore
 console.log(`Gamut maping, upper part (complexe):   \t\t ${gamutUpperOccurences} times, \t so ${(gamutUpperOccurences / nb_test) * 100}%`);
+
+console.log(
+  JSON.stringify(
+    lowerPart.find(({ ratio }) => ratio < 0.505 && ratio > 0.495),
+    null,
+    2
+  )
+);
+console.log(
+  JSON.stringify(
+    upperPart.find(({ ratio }) => ratio < 0.55 && ratio > 0.45),
+    null,
+    2
+  )
+);

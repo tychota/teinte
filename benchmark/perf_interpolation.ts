@@ -7,6 +7,9 @@ import { randomColor, randomRatio } from "./utils/random";
 
 const benchmark = Benchmark.getInstance();
 
+benchmark.addMark("Calibration (start)");
+benchmark.addMark("Calibration (end)");
+
 benchmark.addMark("Start");
 benchmark.addMark("[Naive Interpolation] RGB -> TargetSpace (start)");
 benchmark.addMark("[Naive Interpolation] RGB -> TargetSpace (end)");
@@ -30,6 +33,7 @@ benchmark.addMark("[Clamp] Mapping (start)");
 benchmark.addMark("[Clamp] Mapping (end)");
 benchmark.addMark("End");
 
+benchmark.addFlow("Calibration", "Calibration (start)", "Calibration (end)");
 benchmark.addFlow("Full interpolation", "Start", "End");
 benchmark.addFlow(
   "010 [Naive Interpolation] - To target space",
@@ -84,13 +88,19 @@ benchmark.addFlow("200 [Clamp] - Mapping", "[Clamp] Mapping (start)", "[Clamp] M
 const WARMUP_EXAMPLES = 10000;
 const RECORDING_EXAMPLES = 1000000;
 
-const space: Parameters<typeof interpolateColor>[3] = "hsl";
-const gamutMappingStrategy: Parameters<typeof interpolateColor>[4] = "clamp";
+const space: Parameters<typeof interpolateColor>[3] = "oklab";
+const gamutMappingStrategy: Parameters<typeof interpolateColor>[4] = "adaptativeL05-5";
 const getColor1 = () => {
-  return randomColor();
+  // return { r: 120, g: 140, b: 160 }; // no gamut
+  return { r: 11, g: 217, b: 194 }; // gamut lower
+  // return { r: 250, g: 252, b: 253 }; // gamut upper
+  // return randomColor();
 };
 const getColor2 = () => {
-  return randomColor();
+  // return { r: 70, g: 50, b: 100 }; // no gamut
+  return { r: 3, g: 8, b: 194 }; // gamut lower
+  // return { r: 252, g: 77, b: 174 }; // gamut upper
+  // return randomColor();
 };
 
 benchmark.benchmark(
@@ -98,7 +108,8 @@ benchmark.benchmark(
     const color1 = getColor1();
     const color2 = getColor2();
 
-    const ratio = randomRatio();
+    // const ratio = randomRatio();
+    const ratio = 0.5 + 0.05 * (Math.random() - 0.5);
 
     interpolateColor(color1, color2, ratio, space, gamutMappingStrategy);
   },
@@ -106,9 +117,9 @@ benchmark.benchmark(
   RECORDING_EXAMPLES
 );
 
-// console.log(benchmark.getResults());
+//console.log(benchmark.getResults());
 
-const directory = `benchmark/data/interpolation/${space}/${gamutMappingStrategy}`;
+const directory = `benchmark/data/interpolation/${space}/${gamutMappingStrategy}/lowerGamut`;
 
 fs.mkdirSync(directory, { recursive: true });
 

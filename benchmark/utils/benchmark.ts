@@ -1,3 +1,5 @@
+import * as fs from "fs";
+
 import * as hdr from "hdr-histogram-js";
 
 type Mark = string & { _kind: "mark" };
@@ -9,6 +11,9 @@ const invariant = (condition: boolean, message: string) => {
     throw new Error(message);
   }
 };
+
+const UNIT_FACTOR = 1_000_000;
+const DISPLAY_UNIT_FACTOR = 1_000;
 
 export class Benchmark {
   private static instance: Benchmark;
@@ -54,7 +59,7 @@ export class Benchmark {
   }
 
   private buildHistogram() {
-    return hdr.build();
+    return hdr.build({ numberOfSignificantValueDigits: 5 });
   }
 
   addFlow(name: string, startMark: string, endMark: string) {
@@ -133,15 +138,35 @@ export class Benchmark {
       for (const flow of finishedFlows) {
         const start = this.timings.get(flow.startMark)!;
         const end = this.timings.get(flow.endMark)!;
-        flow.histogram.recordValue((end - start) * 1_000_000);
+
+        let duration = Math.max(end * UNIT_FACTOR - start * UNIT_FACTOR, 0);
+
+        flow.histogram.recordValue(duration);
       }
     }
+  }
+
+  private getInterestingFlows() {
+    invariant(this.state !== "building", "Cannot get results while building");
+    let calibrationFlow = this.flows.find((f) => f.name === "Calibration");
+    const meanCalibration = calibrationFlow!.histogram.mean;
+
+    console.log("Nb Flow", this.flows.length)
+
+    let interestingFlows = this.flows.filter((flow) => {
+      if (flow.histogram.totalCount < 0) return false;
+      if (flow.name === "Calibration") return true;
+      if (flow.histogram.mean < meanCalibration * 4) return false;
+      return true;
+    });
+
+    return interestingFlows;
   }
 
   getResults(): string {
     invariant(this.state !== "building", "Cannot get results while building");
 
-    const interestingFlows = this.flows.filter((f) => f.histogram.totalCount > 0);
+    const interestingFlows = this.getInterestingFlows();
 
     const results: string[] = [];
     for (const flow of interestingFlows) {
@@ -156,11 +181,19 @@ export class Benchmark {
   saveResults(directory: string) {
     invariant(this.state !== "building", "Cannot save results while building");
 
-    const interestingFlows = this.flows.filter((f) => f.histogram.totalCount > 0);
+    if (fs.existsSync(directory)) {
+      fs.rmSync(directory, { recursive: true });
+    }
+    fs.mkdirSync(directory);
+
+    const interestingFlows = this.getInterestingFlows();
 
     for (const flow of interestingFlows) {
-      const percentileDistrtibution = flow.histogram.outputPercentileDistribution();
-      Bun.write(directory + "/" + flow.name + ".tsv", percentileDistrtibution);
+      let percentileDistrtibution = flow.histogram.outputPercentileDistribution(5, DISPLAY_UNIT_FACTOR, true);
+      // percentileDistrtibution = percentileDistrtibution.replaceAll(",", "\t");
+      // percentileDistrtibution = percentileDistrtibution.replaceAll(".", ",");
+      //percentileDistrtibution = percentileDistrtibution.replace(/^([\w\d,]+;[\w\d,]+);.*/, "$1");
+      Bun.write(directory + "/" + flow.name + ".csv", percentileDistrtibution);
     }
   }
 }

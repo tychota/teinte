@@ -1,7 +1,28 @@
 {
-  "name": "teinte",
+  "name": "@bam.tech/teinte",
+  "version": "1.0.1",
+  "description": "A color interpolation library",
+  "keywords": [
+    "oklab",
+    "gamut",
+    "color",
+    "interpolation",
+    "interpolate",
+    "interpolati"
+  ],
+  "license": "MIT",
+  "people": {
+    "author": "Tycho Tatitscheff <tychot@bam.tech>"
+  },
+  "main": "lib/index.js",
   "module": "index.ts",
   "type": "module",
+  "files": [
+    "lib"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "bun-types": "latest",
     "hdr-histogram-js": "^3.0.0",
@@ -9,5 +30,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "build": "bun build ./index.ts --outfile=lib/index.js"
   }
 }
