@@ -1,0 +1,314 @@
+import { interpolateColor } from "./src/interpolate";
+import { performance } from "perf_hooks";
+
+import { startSamplingProfiler } from "bun:jsc";
+
+startSamplingProfiler(Bun.main + ".prof");
+
+// const randomBetween = (min: number, max: number) => {
+//   return Math.round(Math.random() * (max - min) + min);
+// };
+
+// const RGB_MIN = 0;
+// const RGB_MAX = 255;
+
+const upperPart: { c1: {}; c2: {}; ratio: number }[] = [];
+const lowerPart: { c1: {}; c2: {}; ratio: number }[] = [];
+
+const tryInterpolate = () => {
+  //   const r1 = randomBetween(RGB_MIN, RGB_MAX);
+  //   const g1 = randomBetween(RGB_MIN, RGB_MAX);
+  //   const b1 = randomBetween(RGB_MIN, RGB_MAX);
+
+  //   const r2 = randomBetween(RGB_MIN, RGB_MAX);
+  //   const g2 = randomBetween(RGB_MIN, RGB_MAX);
+  //   const b2 = randomBetween(RGB_MIN, RGB_MAX);
+
+  //   const c1 = { r: r1, g: g1, b: b1 };
+  //   const c2 = { r: r2, g: g2, b: b2 };
+
+  //   const ratio = Math.random();
+
+  //   const c1 = { r: 150, g: 55, b: 253 };
+  //   const c2 = { r: 249, g: 251, b: 252 };
+  //   const ratio = 0.5295;
+
+  const c1 = { r: 1, g: 165, b: 255 };
+  const c2 = { r: 6, g: 139, b: 67 };
+  const ratio = 0.49099;
+
+  const int = () => interpolateColor(c1, c2, ratio, "oklab", "adaptativeLcusp-5");
+
+  try {
+    int();
+  } catch (e) {
+    if (e instanceof Error) {
+      const name = e.name;
+
+      if (name === "IsLowerPart") {
+        lowerPart.push({ c1, c2, ratio });
+      }
+      if (name === "IsUpperPart") {
+        upperPart.push({ c1, c2, ratio });
+      }
+    }
+  }
+};
+
+const nb_test = 1000000;
+
+const t0 = performance.now();
+Array(nb_test)
+  .fill(0)
+  .forEach(() => tryInterpolate());
+const t1 = performance.now();
+
+console.log(`Interpolating took ${(t1 - t0) / nb_test} milliseconds per interpolation (mean)`);
+
+// console.log("upperPart", upperPart.length, upperPart.length / nb_test);
+// console.log("lowerPart", lowerPart.length, lowerPart.length / nb_test);
+
+// console.log(
+//   "upperPart\n",
+//   JSON.stringify(upperPart[0]),
+//   "\n",
+//   JSON.stringify(upperPart[1]),
+//   "\n",
+//   JSON.stringify(upperPart[2]),
+//   "\n",
+//   JSON.stringify(upperPart[3]),
+//   "\n",
+//   JSON.stringify(upperPart[4]),
+//   "\n"
+// );
+
+// console.log(
+//   "lowerPart\n",
+//   JSON.stringify(lowerPart[0]),
+//   "\n",
+//   JSON.stringify(lowerPart[1]),
+//   "\n",
+//   JSON.stringify(lowerPart[2]),
+//   "\n",
+//   JSON.stringify(lowerPart[3]),
+//   "\n",
+//   JSON.stringify(lowerPart[4]),
+//   "\n"
+// );
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 56 0.000056
+// lowerPart 9067 0.009067
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 59 0.000059
+// lowerPart 8997 0.008997
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 56 0.000056
+// lowerPart 9035 0.009035
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 63 0.000063
+// lowerPart 8840 0.00884
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 66 0.000066
+// lowerPart 9019 0.009019
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 59 0.000059
+// lowerPart 9054 0.009054
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 63 0.000063
+// lowerPart 9054 0.009054
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 61 0.000061
+// lowerPart 9006 0.009006
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 49 0.000049
+// lowerPart 9093 0.009093
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 56 0.000056
+// lowerPart 9067 0.009067
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 59 0.000059
+// lowerPart 8997 0.008997
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 56 0.000056
+// lowerPart 9035 0.009035
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 63 0.000063
+// lowerPart 8840 0.00884
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 66 0.000066
+// lowerPart 9019 0.009019
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 59 0.000059
+// lowerPart 9054 0.009054
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 63 0.000063
+// lowerPart 9054 0.009054
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 61 0.000061
+// lowerPart 9006 0.009006
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// upperPart 49 0.000049
+// lowerPart 9093 0.009093
+
+// Oklab, adaptativeL05-005, 1 steps
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.0039806779 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.004086187237 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.004171817282 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.004049998046 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeL05-005, 2 steps
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.004088014078 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.00407187503 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.004003814003 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.004153096017 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.0043576164149999996 milliseconds per interpolation (mean)
+
+// Oklab clamp
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.003737023791 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.003701859335 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.003800212391 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.003774075137 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.0038096491290000004 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.003744173722 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.003826490862 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.003901175199 milliseconds per interpolation (mean)
+
+// RGB, clamp
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000327154939 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000309919274 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.00034147427 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000322565918 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.00032392102999999995 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.00031363729699999997 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000321129167 milliseconds per interpolation (mean)
+
+// Nothing but random
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000032449501999999994 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000035169863 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000033282319000000004 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.000032985415 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.00003470961200000001 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeLcusp-5, special c and ratio for lower part, 0 step
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013238134306999999 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.012779582946 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013540398327 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeLcusp-5, special c and ratio for lower part, 1 step
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.014167467133 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.014647937975 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.014122650419000002 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013896821806 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeLcusp-5, special c and ratio for lower part, 2 steps
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013562796028999999 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013322816880000001 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013613633624 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.014131830504 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.01379375594 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013653397182000001 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeLcusp-5, special c and ratio for lower part, 3 steps
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.0135912397 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013874245032999999 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013549166962999999 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013869702695 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.014154908819 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeL0-05, special c and ratio for lower part, 1 steps
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.012503368364999998 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.01232541343 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013157387188 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.012714704731 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013064157513 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeLcusp-5, special c and ratio for upper part, 1 steps
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013159849463 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.012577842797000001 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.014558253012000002 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013049467709999998 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.014225459927 milliseconds per interpolation (mean)
+
+// Oklab, adaptativeLcusp-5, special c and ratio for upper part, 3 steps
+
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013647316085 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013658250806 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013411305989999999 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.01389221637 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013464672656000001 milliseconds per interpolation (mean)
+// ➜  teinte git:(main) ✗ bun run bench.ts
+// Interpolating took 0.013176335412 milliseconds per interpolation (mean)
