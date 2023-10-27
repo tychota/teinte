@@ -1,4 +1,4 @@
-import { Benchmark } from "../../../benchmark/utils/benchmark";
+// import { Benchmark } from "../../../benchmark/utils/benchmark";
 
 import { Color } from "../../colors";
 import { ToOkLabColorspaceVisitor } from "../../colorspace/oklab";
@@ -16,7 +16,7 @@ const repeat = (fn: Function, times: number) => {
   }
 };
 
-const benchmark = Benchmark.getInstance();
+// const benchmark = Benchmark.getInstance();
 
 abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
   abstract gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab>;
@@ -24,21 +24,36 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
   rgbVisitor = new ToRGBColorspaceVisitor();
 
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
-    benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
+    // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
     if (color.r < 0 || color.r > 1 || color.g < 0 || color.g > 1 || color.b < 0 || color.b > 1) {
       const okLabColorspace = new ToOkLabColorspaceVisitor();
-      benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (start)");
+      // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (start)");
       const oklab = okLabColorspace.visitRGBColor(color);
-      benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (end)");
-      benchmark.recordMark("[Gamut oklab] Projection (start)");
+      // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (end)");
+      // benchmark.recordMark("[Gamut oklab] Projection (start)");
       const mappedOklab = this.gamutMap(oklab);
-      benchmark.recordMark("[Gamut oklab] Projection (end)");
-      benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (start)");
+      // benchmark.recordMark("[Gamut oklab] Projection (end)");
+      // benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (start)");
       const rgb = this.rgbVisitor.visitOkLabColor(mappedOklab);
-      benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (end)");
-      benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (end)");
+      // benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (end)");
+      // benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (end)");
       const clampVisitor = new ClampToRGBColorVisitor();
       return clampVisitor.visitRGBColor(rgb);
+    } else {
+      // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (start)");
+      // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (end)");
+      // benchmark.recordMark("[Gamut oklab] Projection (start)");
+      // benchmark.recordMark("[Gamut oklab] Projection (end)");
+      // benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (start)");
+      // benchmark.recordMark("[Gamut oklab] TargetSpace -> RGB (end)");
+      // benchmark.recordMark("[Gamut oklab] Find cusp (start)");
+      // benchmark.recordMark("[Gamut oklab] Find cusp (end)");
+      // benchmark.recordMark("[Gamut oklab] Find intersection (start)");
+      // benchmark.recordMark("[Gamut oklab] Find intersection - Upper Gamut (start)");
+      // benchmark.recordMark("[Gamut oklab] Find intersection - Lower Gamut (start)");
+      // benchmark.recordMark("[Gamut oklab] Find intersection (end)");
+      // benchmark.recordMark("[Clamp] Mapping (start)");
+      // benchmark.recordMark("[Clamp] Mapping (end)");
     }
 
     return color;
@@ -169,7 +184,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
    * @returns
    */
   protected findCusp(a: number, b: number): { l: number; c: number } {
-    benchmark.recordMark("[Gamut oklab] Find cusp (start)");
+    // benchmark.recordMark("[Gamut oklab] Find cusp (start)");
     let S_cusp = this.computeMaxSaturation(a, b);
 
     let oklab_at_max = new Color.OkLab(1, S_cusp * a, S_cusp * b);
@@ -178,7 +193,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
     let l_cusp = Math.cbrt(1 / Math.max(rgb_at_max.r, rgb_at_max.g, rgb_at_max.b));
     let c_cusp = S_cusp * l_cusp;
 
-    benchmark.recordMark("[Gamut oklab] Find cusp (end)");
+    // benchmark.recordMark("[Gamut oklab] Find cusp (end)");
 
     return { l: l_cusp, c: c_cusp };
   }
@@ -192,7 +207,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
    * @param b
    */
   protected findGamutIntersection(a: number, b: number, L1: number, C1: number, L0: number): number {
-    benchmark.recordMark("[Gamut oklab] Find intersection (start)");
+    // benchmark.recordMark("[Gamut oklab] Find intersection (start)");
     const { l: l_cusp, c: c_cusp } = this.findCusp(a, b);
 
     let t: number;
@@ -200,10 +215,10 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
     const willIntersectWithLowerHalf = (L1 - L0) * c_cusp - (l_cusp - L0) * C1 <= 0;
 
     if (willIntersectWithLowerHalf) {
-      benchmark.recordMark("[Gamut oklab] Find intersection - Lower Gamut (start)");
+      // benchmark.recordMark("[Gamut oklab] Find intersection - Lower Gamut (start)");
       t = (c_cusp * L0) / (C1 * l_cusp + c_cusp * (L0 - L1));
     } else {
-      benchmark.recordMark("[Gamut oklab] Find intersection - Upper Gamut (start)");
+      // benchmark.recordMark("[Gamut oklab] Find intersection - Upper Gamut (start)");
       t = (c_cusp * (L0 - 1)) / (C1 * (l_cusp - 1) + c_cusp * (L0 - L1));
 
       const halleyStep = () => {
@@ -270,7 +285,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
       repeat(halleyStep, HALLEY_STEPS_NB);
     }
 
-    benchmark.recordMark("[Gamut oklab] Find intersection (end)");
+    // benchmark.recordMark("[Gamut oklab] Find intersection (end)");
 
     return t;
   }

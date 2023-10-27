@@ -1,4 +1,4 @@
-import { Benchmark } from "../benchmark/utils/benchmark";
+// import { Benchmark } from "../benchmark/utils/benchmark";
 
 import { Color, ColorspaceVisitor } from "./colors";
 import { ToHSLColorspaceVisitor } from "./colorspace/hsl";
@@ -13,7 +13,7 @@ import {
   OkLabGamutClipProjectToLCusp,
 } from "./gamut/rgb/oklab";
 
-const benchmark = Benchmark.getInstance();
+// const benchmark = Benchmark.getInstance();
 
 interface RGB {
   r: number;
@@ -46,14 +46,17 @@ export function interpolateColor(
   const c1Rgb = new Color.RGB(c1.r / 255, c1.g / 255, c1.b / 255);
   const c2Rgb = new Color.RGB(c2.r / 255, c2.g / 255, c2.b / 255);
 
-  benchmark.recordMark("Start");
+  // benchmark.recordMark("Calibration (start)");
+  // benchmark.recordMark("Calibration (end)");
+
+  // benchmark.recordMark("Start");
 
   let interpolatedColor: Color;
   let interpolationVisitor: ColorspaceVisitor<any>;
 
   switch (space) {
     case "rgb":
-      benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
+      // benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
       interpolatedColor = new Color.RGB(
         interpolateValue(c1Rgb, c2Rgb, "r", t),
         interpolateValue(c1Rgb, c2Rgb, "g", t),
@@ -62,48 +65,48 @@ export function interpolateColor(
       break;
     case "hsl":
       interpolationVisitor = new ToHSLColorspaceVisitor();
-      benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (start)");
+      // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (start)");
       const c1Hcl = interpolationVisitor.visitRGBColor(c1Rgb);
       const c2Hcl = interpolationVisitor.visitRGBColor(c2Rgb);
-      benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (end)");
-      benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
+      // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (end)");
+      // benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
       interpolatedColor = new Color.HSL(
         interpolateValue(c1Hcl, c2Hcl, "h", t),
         interpolateValue(c1Hcl, c2Hcl, "s", t),
         interpolateValue(c1Hcl, c2Hcl, "l", t)
       );
-      benchmark.recordMark("[Naive Interpolation] Interpolation (end)");
+      // benchmark.recordMark("[Naive Interpolation] Interpolation (end)");
       break;
     case "oklab":
       interpolationVisitor = new ToOkLabColorspaceVisitor();
-      benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (start)");
+      // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (start)");
       const c1OkLab = interpolationVisitor.visitRGBColor(c1Rgb);
       const c2OkLab = interpolationVisitor.visitRGBColor(c2Rgb);
-      benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (end)");
-      benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
+      // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (end)");
+      // benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
       interpolatedColor = new Color.OkLab(
         interpolateValue(c1OkLab, c2OkLab, "l", t),
         interpolateValue(c1OkLab, c2OkLab, "a", t),
         interpolateValue(c1OkLab, c2OkLab, "b", t)
       );
-      benchmark.recordMark("[Naive Interpolation] Interpolation (end)");
+      // benchmark.recordMark("[Naive Interpolation] Interpolation (end)");
       break;
     case "oklch":
-      benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (start)");
+      // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (start)");
       interpolationVisitor = new ToOkLabColorspaceVisitor();
       const c1OkLCH = interpolationVisitor.visitRGBColor(c1Rgb);
       const c2OkLCH = interpolationVisitor.visitRGBColor(c2Rgb);
-      benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (end)");
-      benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
+      // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (end)");
+      // benchmark.recordMark("[Naive Interpolation] Interpolation (start)");
       interpolatedColor = new Color.OkLCH(
         interpolateValue(c1OkLCH, c2OkLCH, "l", t),
         interpolateValue(c1OkLCH, c2OkLCH, "c", t),
         interpolateValue(c1OkLCH, c2OkLCH, "h", t)
       );
-      benchmark.recordMark("[Naive Interpolation] Interpolation (end)");
+      // benchmark.recordMark("[Naive Interpolation] Interpolation (end)");
       break;
   }
-  benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (start)");
+  // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (start)");
 
   let mappedColor: InstanceType<typeof Color.RGB>;
   let gamutMappingVisitor: ColorspaceVisitor<InstanceType<typeof Color.RGB>>;
@@ -154,7 +157,7 @@ export function interpolateColor(
       break;
   }
 
-  benchmark.recordMark("End");
+  // benchmark.recordMark("End");
 
   return { r: Math.round(mappedColor.r * 255), g: Math.round(mappedColor.g * 255), b: Math.round(mappedColor.b * 255) };
 }
