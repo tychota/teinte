@@ -3,6 +3,7 @@
 import { Color, ColorspaceVisitor } from "./colors";
 import { ToHSLColorspaceVisitor } from "./colorspace/hsl";
 import { ToOkLabColorspaceVisitor } from "./colorspace/oklab";
+import { ToOkLCHColorspaceVisitor } from "./colorspace/oklch";
 import { ClampToRGBColorVisitor } from "./gamut/rgb/clamp";
 import {
   GreyOutOfRange,
@@ -93,7 +94,7 @@ export function interpolateColor(
       break;
     case "oklch":
       // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (start)");
-      interpolationVisitor = new ToOkLabColorspaceVisitor();
+      interpolationVisitor = new ToOkLCHColorspaceVisitor();
       const c1OkLCH = interpolationVisitor.visitRGBColor(c1Rgb);
       const c2OkLCH = interpolationVisitor.visitRGBColor(c2Rgb);
       // benchmark.recordMark("[Naive Interpolation] RGB -> TargetSpace (end)");
