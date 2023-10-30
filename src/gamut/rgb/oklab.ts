@@ -6,9 +6,6 @@ import { ToOkLCHColorspaceVisitor } from "../../colorspace/oklch";
 import { ToRGBColorspaceVisitor } from "../../colorspace/rgb";
 import { ClampToRGBColorVisitor } from "./clamp";
 
-const HALLEY_STEPS_NB = 3;
-const EPSILON = 0.1;
-
 const clamp = (x: number, min: number, max: number) => Math.min(Math.max(x, min), max);
 
 const repeat = (fn: Function, times: number) => {
@@ -24,9 +21,18 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
 
   rgbVisitor = new ToRGBColorspaceVisitor();
 
+  private static COLOR_EPSILON = 0.005;
+
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
-    // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");    
-    if (color.r < 0 - EPSILON || color.r > 1 + EPSILON || color.g < 0 - EPSILON || color.g > 1 + EPSILON || color.b < 0 - EPSILON || color.b > 1 + EPSILON) {
+    // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
+    if (
+      color.r < 0 - OkLabGamutMapping.COLOR_EPSILON ||
+      color.r > 1 + OkLabGamutMapping.COLOR_EPSILON ||
+      color.g < 0 - OkLabGamutMapping.COLOR_EPSILON ||
+      color.g > 1 + OkLabGamutMapping.COLOR_EPSILON ||
+      color.b < 0 - OkLabGamutMapping.COLOR_EPSILON ||
+      color.b > 1 + OkLabGamutMapping.COLOR_EPSILON
+    ) {
       const okLabColorspace = new ToOkLabColorspaceVisitor();
       // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (start)");
       const oklab = okLabColorspace.visitRGBColor(color);
@@ -90,6 +96,8 @@ export class GreyOutOfRange extends OkLabGamutMapping {
 }
 
 export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
+  private static HALLEY_STEPS_NB = 3;
+
   /**
    * Compute the maximum saturation for a given hue that fits in sRGB
    * Saturation here is defined as S = C/L
@@ -171,7 +179,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
       maxSaturation = maxSaturation - (f * f_dS) / (f_dS * f_dS - 0.5 * f * f_dS2);
     };
 
-    repeat(halleyStep, HALLEY_STEPS_NB);
+    repeat(halleyStep, OkLabInterpolateGamutMapping.HALLEY_STEPS_NB);
 
     return maxSaturation;
   }
@@ -283,7 +291,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
         t += Math.min(t_cr, t_cg, t_cb);
       };
 
-      repeat(halleyStep, HALLEY_STEPS_NB);
+      repeat(halleyStep, OkLabInterpolateGamutMapping.HALLEY_STEPS_NB);
     }
 
     // benchmark.recordMark("[Gamut oklab] Find intersection (end)");
