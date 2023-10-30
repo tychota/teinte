@@ -7,6 +7,7 @@ import { ToRGBColorspaceVisitor } from "../../colorspace/rgb";
 import { ClampToRGBColorVisitor } from "./clamp";
 
 const HALLEY_STEPS_NB = 3;
+const EPSILON = 0.1;
 
 const clamp = (x: number, min: number, max: number) => Math.min(Math.max(x, min), max);
 
@@ -24,8 +25,8 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
   rgbVisitor = new ToRGBColorspaceVisitor();
 
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
-    // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
-    if (color.r < 0 || color.r > 1 || color.g < 0 || color.g > 1 || color.b < 0 || color.b > 1) {
+    // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");    
+    if (color.r < 0 - EPSILON || color.r > 1 + EPSILON || color.g < 0 - EPSILON || color.g > 1 + EPSILON || color.b < 0 - EPSILON || color.b > 1 + EPSILON) {
       const okLabColorspace = new ToOkLabColorspaceVisitor();
       // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (start)");
       const oklab = okLabColorspace.visitRGBColor(color);
@@ -54,9 +55,9 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
       // benchmark.recordMark("[Gamut oklab] Find intersection (end)");
       // benchmark.recordMark("[Clamp] Mapping (start)");
       // benchmark.recordMark("[Clamp] Mapping (end)");
+      const clampVisitor = new ClampToRGBColorVisitor();
+      return clampVisitor.visitRGBColor(color);
     }
-
-    return color;
   }
   public visitHSLColor(color: InstanceType<typeof Color.HSL>) {
     const rgb = this.rgbVisitor.visitHSLColor(color);
