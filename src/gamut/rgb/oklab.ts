@@ -2,8 +2,10 @@
 
 import { Color } from "../../colors";
 import { ToOkLabColorspaceVisitor } from "../../colorspace/oklab";
+import { _LinearRgbColorspace } from "../../colorspace/oklab/rgb/_linearRgb";
 import { ToOkLCHColorspaceVisitor } from "../../colorspace/oklch";
 import { ToRGBColorspaceVisitor } from "../../colorspace/rgb";
+import { ToXYZColorspaceVisitor } from "../../colorspace/xyz";
 import { ClampToRGBColorVisitor } from "./clamp";
 
 const clamp = (x: number, min: number, max: number) => Math.min(Math.max(x, min), max);
@@ -197,9 +199,10 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
     let S_cusp = this.computeMaxSaturation(a, b);
 
     let oklab_at_max = new Color.OkLab(1, S_cusp * a, S_cusp * b);
-    let rgb_at_max = new ToRGBColorspaceVisitor().visitOkLabColor(oklab_at_max);
+    let xyz_at_max = new ToXYZColorspaceVisitor().visitOkLabColor(oklab_at_max);
+    let lrgb_at_max = new _LinearRgbColorspace().visitXYZColor(xyz_at_max);
 
-    let l_cusp = Math.cbrt(1 / Math.max(rgb_at_max.r, rgb_at_max.g, rgb_at_max.b));
+    let l_cusp = Math.cbrt(1 / Math.max(lrgb_at_max.r, lrgb_at_max.g, lrgb_at_max.b));
     let c_cusp = S_cusp * l_cusp;
 
     // benchmark.recordMark("[Gamut oklab] Find cusp (end)");
