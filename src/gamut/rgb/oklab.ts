@@ -22,6 +22,7 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
   rgbVisitor = new ToRGBColorspaceVisitor();
 
   private static COLOR_EPSILON = 0.0001;
+  protected static GAMUT_EPSILON = 0.00001;
 
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
     // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
@@ -303,21 +304,18 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
 export class OkLabGamutClipPreserveChroma extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
-    const oklch = new ToOkLCHColorspaceVisitor().visitOkLabColor(oklab);
-    const l = oklch.l;
-    const c = oklch.c;
-    const h = oklch.h;
+    const l = oklab.l;
+    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
-    const a = oklab.a / c;
-    const b = oklab.b / c;
+    const a_norm = oklab.a / c;
+    const b_norm = oklab.b / c;
 
     const L0 = clamp(l, 0, 1);
-    const t = this.findGamutIntersection(a, b, l, c, L0);
+    const t = this.findGamutIntersection(a_norm, b_norm, l, c, L0);
     const l_clip = L0 * (1 - t) + l * t;
     const c_clip = t * c;
 
-    const oklch_clip = new Color.OkLCH(l_clip, c_clip, h);
-    const oklab_clip = new ToOkLabColorspaceVisitor().visitOkLCHColor(oklch_clip);
+    const oklab_clip = new Color.OkLab(l_clip, c_clip * a_norm, c_clip * b_norm);
 
     return oklab_clip;
   }
@@ -326,22 +324,19 @@ export class OkLabGamutClipPreserveChroma extends OkLabInterpolateGamutMapping {
 export class OkLabGamutClipProjectTo05 extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
-    const oklch = new ToOkLCHColorspaceVisitor().visitOkLabColor(oklab);
-    const l = oklch.l;
-    const c = oklch.c;
-    const h = oklch.h;
+    const l = oklab.l;
+    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
-    const a = oklab.a / c;
-    const b = oklab.b / c;
+    const a_norm = oklab.a / c;
+    const b_norm = oklab.b / c;
 
     const L0 = 0.5;
 
-    const t = this.findGamutIntersection(a, b, l, c, L0);
+    const t = this.findGamutIntersection(a_norm, b_norm, l, c, L0);
     const l_clip = L0 * (1 - t) + l * t;
     const c_clip = t * c;
 
-    const oklch_clip = new Color.OkLCH(l_clip, c_clip, h);
-    const oklab_clip = new ToOkLabColorspaceVisitor().visitOkLCHColor(oklch_clip);
+    const oklab_clip = new Color.OkLab(l_clip, c_clip * a_norm, c_clip * b_norm);
 
     return oklab_clip;
   }
@@ -350,24 +345,21 @@ export class OkLabGamutClipProjectTo05 extends OkLabInterpolateGamutMapping {
 export class OkLabGamutClipProjectToLCusp extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
-    const oklch = new ToOkLCHColorspaceVisitor().visitOkLabColor(oklab);
-    const l = oklch.l;
-    const c = oklch.c;
-    const h = oklch.h;
+    const l = oklab.l;
+    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
-    const a = oklab.a / c;
-    const b = oklab.b / c;
+    const a_norm = oklab.a / c;
+    const b_norm = oklab.b / c;
 
-    const cusp = this.findCusp(a, b);
+    const cusp = this.findCusp(a_norm, b_norm);
 
     const L0 = cusp.l;
 
-    const t = this.findGamutIntersection(a, b, l, c, L0);
+    const t = this.findGamutIntersection(a_norm, b_norm, l, c, L0);
     const l_clip = L0 * (1 - t) + l * t;
     const c_clip = t * c;
 
-    const oklch_clip = new Color.OkLCH(l_clip, c_clip, h);
-    const oklab_clip = new ToOkLabColorspaceVisitor().visitOkLCHColor(oklch_clip);
+    const oklab_clip = new Color.OkLab(l_clip, c_clip * a_norm, c_clip * b_norm);
 
     return oklab_clip;
   }
@@ -379,24 +371,21 @@ export class OkLabGamutClipAdaptativeL05 extends OkLabInterpolateGamutMapping {
   }
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
-    const oklch = new ToOkLCHColorspaceVisitor().visitOkLabColor(oklab);
-    const l = oklch.l;
-    const c = oklch.c;
-    const h = oklch.h;
+    const l = oklab.l;
+    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
-    const a = oklab.a / c;
-    const b = oklab.b / c;
+    const a_norm = oklab.a / c;
+    const b_norm = oklab.b / c;
 
     const ld = l - 0.5;
     const e1 = 0.5 + Math.abs(ld) + this.aplha * c;
     const l0 = 0.5 * (1 + Math.sign(ld) * (e1 - Math.sqrt(e1 * e1 - 2 * Math.abs(ld))));
 
-    const t = this.findGamutIntersection(a, b, l, c, l0);
+    const t = this.findGamutIntersection(a_norm, b_norm, l, c, l0);
     const l_clip = l0 * (1 - t) + l * t;
     const c_clip = t * c;
 
-    const oklch_clip = new Color.OkLCH(l_clip, c_clip, h);
-    const oklab_clip = new ToOkLabColorspaceVisitor().visitOkLCHColor(oklch_clip);
+    const oklab_clip = new Color.OkLab(l_clip, c_clip * a_norm, c_clip * b_norm);
 
     return oklab_clip;
   }
@@ -408,27 +397,24 @@ export class OkLabGamutClipAdaptativeLcusp extends OkLabInterpolateGamutMapping 
   }
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
-    const oklch = new ToOkLCHColorspaceVisitor().visitOkLabColor(oklab);
-    const l = oklch.l;
-    const c = oklch.c;
-    const h = oklch.h;
+    const l = oklab.l;
+    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
-    const a = oklab.a / c;
-    const b = oklab.b / c;
+    const a_norm = oklab.a / c;
+    const b_norm = oklab.b / c;
 
-    const cusp = this.findCusp(a, b);
+    const cusp = this.findCusp(a_norm, b_norm);
 
     const ld = l - cusp.l;
     const k = 2 * (ld > 0 ? 1 - cusp.l : cusp.l);
     const e1 = 0.5 * k + Math.abs(ld) + (this.aplha * c) / k;
     const l0 = cusp.l + 0.5 * (Math.sign(ld) * (e1 - Math.sqrt(e1 * e1 - 2 * k * Math.abs(ld))));
 
-    const t = this.findGamutIntersection(a, b, l, c, l0);
+    const t = this.findGamutIntersection(a_norm, b_norm, l, c, l0);
     const l_clip = l0 * (1 - t) + l * t;
     const c_clip = t * c;
 
-    const oklch_clip = new Color.OkLCH(l_clip, c_clip, h);
-    const oklab_clip = new ToOkLabColorspaceVisitor().visitOkLCHColor(oklch_clip);
+    const oklab_clip = new Color.OkLab(l_clip, c_clip * a_norm, c_clip * b_norm);
 
     return oklab_clip;
   }
