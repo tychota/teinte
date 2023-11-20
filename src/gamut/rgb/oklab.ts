@@ -21,7 +21,7 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
 
   rgbVisitor = new ToRGBColorspaceVisitor();
 
-  private static COLOR_EPSILON = 0.005;
+  private static COLOR_EPSILON = 0.0001;
 
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
     // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
