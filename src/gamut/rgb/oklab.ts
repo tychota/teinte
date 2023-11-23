@@ -122,9 +122,9 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
       k2 = +0.59662641;
       k3 = +0.75515197;
       k4 = +0.56771245;
-      wl = +4.0767416621;
-      wm = -3.3077115913;
-      ws = +0.2309699292;
+      wl = +4.0767416360759592;
+      wm = -3.3077115392580625;
+      ws = +0.2309699031821046;
     } else if (1.8144407988011 * a - 1.1944526678052367 * b > 1) {
       // Green component goes under zero first
       k0 = +0.73956515;
@@ -132,9 +132,9 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
       k2 = +0.08285427;
       k3 = +0.1254107;
       k4 = +0.14503204;
-      wl = -1.2684380046;
-      wm = +2.6097574011;
-      ws = -0.3413193965;
+      wl = -1.2684379732850315;
+      wm = +2.6097573492876882;
+      ws = -0.3413193760026572;
     } else {
       // Blue component goes under zero first
       k0 = +1.35733652;
@@ -142,9 +142,9 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
       k2 = -1.1513021;
       k3 = -0.50559606;
       k4 = +0.00692167;
-      wl = -0.0041960863;
-      wm = -0.7034186147;
-      ws = +1.707614701;
+      wl = -0.0041960761386755;
+      wm = -0.7034186179359361;
+      ws = +1.7076146940746113;
     }
 
     // Approximate max saturation using a polynomial
@@ -265,23 +265,23 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
         let mdt2 = 6 * m_dt * m_dt * m_;
         let sdt2 = 6 * s_dt * s_dt * s_;
 
-        let cr = l * 4.0767416621 + m * -3.3077115913 + s * 0.2309699292 - 1;
-        let cr_dt = ldt * 4.0767416621 + mdt * -3.3077115913 + sdt * 0.2309699292;
-        let cr_dt2 = ldt2 * 4.0767416621 + mdt2 * -3.3077115913 + sdt2 * 0.2309699292;
+        let cr = l * 4.0767416360759592 + m * -3.3077115392580625 + s * 0.2309699031821046 - 1;
+        let cr_dt = ldt * 4.0767416360759592 + mdt * -3.3077115392580625 + sdt * 0.2309699031821046;
+        let cr_dt2 = ldt2 * 4.0767416360759592 + mdt2 * -3.3077115392580625 + sdt2 * 0.2309699031821046;
 
         let u_cr = cr_dt / (cr_dt * cr_dt - 0.5 * cr * cr_dt2);
         let t_cr = -cr * u_cr;
 
-        let cg = l * -1.2684380046 + m * 2.6097574011 + s * -0.3413193965 - 1;
-        let cg_dt = ldt * -1.2684380046 + mdt * 2.6097574011 + sdt * -0.3413193965;
-        let cg_dt2 = ldt2 * -1.2684380046 + mdt2 * 2.6097574011 + sdt2 * -0.3413193965;
+        let cg = l * -1.2684379732850315 + m * 2.6097573492876882 + s * -0.3413193760026572 - 1;
+        let cg_dt = ldt * -1.2684379732850315 + mdt * 2.6097573492876882 + sdt * -0.3413193760026572;
+        let cg_dt2 = ldt2 * -1.2684379732850315 + mdt2 * 2.6097573492876882 + sdt2 * -0.3413193760026572;
 
         let u_cg = cg_dt / (cg_dt * cg_dt - 0.5 * cg * cg_dt2);
         let t_cg = -cg * u_cg;
 
-        let cb = l * -0.0041960863 + m * -0.7034186147 + s * 1.707614701 - 1;
-        let cb_dt = ldt * -0.0041960863 + mdt * -0.7034186147 + sdt * 1.707614701;
-        let cb_dt2 = ldt2 * -0.0041960863 + mdt2 * -0.7034186147 + sdt2 * 1.707614701;
+        let cb = l * -0.0041960761386755 + m * -0.7034186179359361 + s * 1.7076146940746113 - 1;
+        let cb_dt = ldt * -0.0041960761386755 + mdt * -0.7034186179359361 + sdt * 1.7076146940746113;
+        let cb_dt2 = ldt2 * -0.0041960761386755 + mdt2 * -0.7034186179359361 + sdt2 * 1.7076146940746113;
 
         let u_cb = cb_dt / (cb_dt * cb_dt - 0.5 * cb * cb_dt2);
         let t_cb = -cb * u_cb;
