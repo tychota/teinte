@@ -154,9 +154,9 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
     // this gives an error less than 10e6, except for some blue hues where the dS/dh is close to infinite
     // this should be sufficient for most applications, otherwise do two/three steps
 
-    let k_l = +0.3963377774 * a + 0.2158037573 * b;
-    let k_m = -0.1055613458 * a - 0.0638541728 * b;
-    let k_s = -0.0894841775 * a - 1.291485548 * b;
+    let k_l = +0.3963377773761749 * a + 0.2158037573099136 * b;
+    let k_m = -0.1055613458156586 * a - 0.0638541728258133 * b;
+    let k_s = -0.0894841775298119 * a - 1.2914855480194092 * b;
 
     const halleyStep = () => {
       let l_ = 1 + maxSaturation * k_l;
@@ -238,9 +238,9 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
         let dL = L1 - L0;
         let dC = C1 - 0;
 
-        let k_l = +0.3963377774 * a + 0.2158037573 * b;
-        let k_m = -0.1055613458 * a - 0.0638541728 * b;
-        let k_s = -0.0894841775 * a - 1.291485548 * b;
+        let k_l = +0.3963377773761749 * a + 0.2158037573099136 * b;
+        let k_m = -0.1055613458156586 * a - 0.0638541728258133 * b;
+        let k_s = -0.0894841775298119 * a - 1.2914855480194092 * b;
 
         let l_dt = dL + dC * k_l;
         let m_dt = dL + dC * k_m;
