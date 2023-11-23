@@ -115,7 +115,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
     // Select different coefficients depending on which component goes below zero first
     let k0: number, k1: number, k2: number, k3: number, k4: number, wl: number, wm: number, ws: number;
 
-    if (-1.88170328 * a - 0.80936493 * b > 1) {
+    if (-1.8817030993265862 * a - 0.8093650129914288 * b > 1) {
       // Red component goes under zero first
       k0 = +1.19086277;
       k1 = +1.76576728;
@@ -125,7 +125,7 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
       wl = +4.0767416621;
       wm = -3.3077115913;
       ws = +0.2309699292;
-    } else if (1.81444104 * a - 1.19445276 * b > 1) {
+    } else if (1.8144407988011 * a - 1.1944526678052367 * b > 1) {
       // Green component goes under zero first
       k0 = +0.73956515;
       k1 = -0.45954404;
