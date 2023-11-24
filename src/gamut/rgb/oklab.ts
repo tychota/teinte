@@ -23,18 +23,18 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
 
   rgbVisitor = new ToRGBColorspaceVisitor();
 
-  private static COLOR_EPSILON = 0.0001;
-  protected static GAMUT_EPSILON = 0.00001;
+  private static CLAMP_OR_GAMUT_BREAKPOINT = 0.0001;
+  protected static MINIMAL_CHROMA_EPSILON = 0.00001;
 
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
     // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
     if (
-      color.r < 0 - OkLabGamutMapping.COLOR_EPSILON ||
-      color.r > 1 + OkLabGamutMapping.COLOR_EPSILON ||
-      color.g < 0 - OkLabGamutMapping.COLOR_EPSILON ||
-      color.g > 1 + OkLabGamutMapping.COLOR_EPSILON ||
-      color.b < 0 - OkLabGamutMapping.COLOR_EPSILON ||
-      color.b > 1 + OkLabGamutMapping.COLOR_EPSILON
+      color.r < 0 - OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.r > 1 + OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.g < 0 - OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.g > 1 + OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.b < 0 - OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.b > 1 + OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT
     ) {
       const okLabColorspace = new ToOkLabColorspaceVisitor();
       // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (start)");
@@ -308,7 +308,7 @@ export class OkLabGamutClipPreserveChroma extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -328,7 +328,7 @@ export class OkLabGamutClipProjectTo05 extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -349,7 +349,7 @@ export class OkLabGamutClipProjectToLCusp extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -375,7 +375,7 @@ export class OkLabGamutClipAdaptativeL05 extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -401,7 +401,7 @@ export class OkLabGamutClipAdaptativeLcusp extends OkLabInterpolateGamutMapping 
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
