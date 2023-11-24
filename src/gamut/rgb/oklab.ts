@@ -99,7 +99,7 @@ export class GreyOutOfRange extends OkLabGamutMapping {
 }
 
 export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
-  private static HALLEY_STEPS_NB = 3;
+  private static HALLEY_STEPS_NB = 2;
 
   /**
    * Compute the maximum saturation for a given hue that fits in sRGB
