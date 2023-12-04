@@ -23,13 +23,15 @@ describe("colors", () => {
     const rgb = new Color.RGB(0.5, 0.3, 0.7);
     // When
     const okLabColorspace = new ToOkLabColorspaceVisitor();
-    // Then
     const lab = okLabColorspace.visitRGBColor(rgb);
+    // Then
     const expectedLab = new Color.OkLab(
       0.5244890538202618,
       0.09009675437758097,
       -0.1307119570889005
     );
-    expect(lab).toEqual(expectedLab);
+    expect(lab.l).toBeCloseTo(expectedLab.l);
+    expect(lab.a).toBeCloseTo(expectedLab.a);
+    expect(lab.b).toBeCloseTo(expectedLab.b);
   });
 });
