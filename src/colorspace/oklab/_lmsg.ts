@@ -14,7 +14,7 @@ export class _LMSg extends Color {
 
 export class _LMSgColorspace {
   visitLMSColor(color: _LMS): _LMSg {
-    return new _LMSg(color.l ** (1 / 3), color.m ** (1 / 3), color.s ** (1 / 3));
+    return new _LMSg(Math.cbrt(color.l), Math.cbrt(color.m), Math.cbrt(color.s));
   }
   visitOkLabColor(color: InstanceType<typeof Color.OkLab>) {
     const LMSg = matMul(OkLab_LMSg, [color.l, color.a, color.b]);
