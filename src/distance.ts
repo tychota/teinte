@@ -7,6 +7,7 @@ interface RGB {
   b: number;
 }
 
+// TODO: this is not deltaEOK ? Invest why and the difference in color distance
 export function deltaOK(c1: RGB, c2: RGB): number {
   const c1Rgb = new Color.RGB(c1.r / 255, c1.g / 255, c1.b / 255);
   const c2Rgb = new Color.RGB(c2.r / 255, c2.g / 255, c2.b / 255);
