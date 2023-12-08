@@ -6,6 +6,10 @@ export abstract class ColorspaceVisitor<T> {
   public abstract visitOkLCHColor(color: InstanceType<typeof Color.OkLCH>): T;
 }
 
+function clip(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
 export abstract class Color {
   abstract name: string;
 
@@ -14,17 +18,34 @@ export abstract class Color {
     constructor(public r: number, public g: number, public b: number) {
       super();
     }
+
+    clip() {
+      this.r = clip(this.r, 0, 1);
+      this.g = clip(this.g, 0, 1);
+      this.b = clip(this.b, 0, 1);
+    }
   };
   static HSL = class HSL extends Color {
     name = "HSL";
     constructor(public h: number, public s: number, public l: number) {
       super();
     }
+
+    clip() {
+      console.warn("It makes no sense to clip a polor space.");
+      this.s = clip(this.s, 0, 1);
+      this.l = clip(this.l, 0, 1);
+    }
   };
+
   static XYZ = class XYZ extends Color {
     name = "XYZ";
     constructor(public x: number, public y: number, public z: number) {
       super();
+    }
+
+    clip() {
+      console.warn("XYZ has no gammut limits.");
     }
   };
   static OkLab = class OkLab extends Color {
@@ -32,11 +53,19 @@ export abstract class Color {
     constructor(public l: number, public a: number, public b: number) {
       super();
     }
+
+    clip() {
+      console.warn("OkLab has no gammut limits.");
+    }
   };
   static OkLCH = class OkLCH extends Color {
     name = "OkLCH";
     constructor(public l: number, public c: number, public h: number) {
       super();
+    }
+
+    clip() {
+      console.warn("OkLCH has no gammut limits.");
     }
   };
 
@@ -72,4 +101,6 @@ export abstract class Color {
       throw new Error(`Color ${this} is not handled by the visitor`);
     }
   }
+
+  abstract clip(): void;
 }
