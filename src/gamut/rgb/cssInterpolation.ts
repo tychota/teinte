@@ -14,7 +14,7 @@ export const deltaEOK = (oneOklab: InstanceType<typeof Color.OkLab>, twoOklab: I
 
 export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
   rgbVisitor = new ToRGBColorspaceVisitor();
-  oklabVisitor  = new ToOkLabColorspaceVisitor();
+  oklabVisitor = new ToOkLabColorspaceVisitor();
   oklchVisitor = new ToOkLCHColorspaceVisitor();
 
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
@@ -22,7 +22,8 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
 
     const origin = color;
 
-    // Step 1 : does not apply as RGB has gamut limit
+    // Step 1 : if destination has no gamut limits (XYZ-D65, XYZ-D50, Lab, LCH, Oklab, Oklch) return origin
+    // does not apply as RGB has gamut limit
     // const nogammutLimitColorspaces = [Color.XYZ, Color.OkLCH, Color.OkLab] as const
     // const colorspaceHasGamutLimit = nogammutLimitColorspaces.includes(destination)
     const colorspaceHasGamutLimit = false;
@@ -32,8 +33,6 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
 
     // Step 2 : create the color in the OKLch color space
     const origin_Oklch = this.oklchVisitor.visitRGBColor(origin);
-
-    console.log("Step 1", origin_Oklch);
 
     // Step 3 : if the Lightness of origin_Oklch is greater than or equal to 100%, return { 1 1 1 } in destination
     // Note the algorithm speak about alpha but we don't support alpha
@@ -58,26 +57,26 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
     // Step 6 : if inGamut(origin_Oklch) is true, convert origin_Oklch to destination and return it as the gamut mapped color
     if (inGamut(origin_Oklch)) {
       return origin_Oklch.accept(this.rgbVisitor) as InstanceType<typeof Color.RGB>;
-    } 
-    
+    }
+
     // Step 7 : otherwise, let delta(one, two) be a function which returns the deltaEOK of color one compared to color two
-      const delta = (one: Color, two: Color) => {
+    const delta = (one: Color, two: Color) => {
       const oneOklab = one.accept(this.oklabVisitor) as InstanceType<typeof Color.OkLab>;
       const twoOklab = two.accept(this.oklabVisitor) as InstanceType<typeof Color.OkLab>;
       return deltaEOK(oneOklab, twoOklab);
     };
 
-      // Step 8: let JND be 0.02
-      let JND = 0.02
+    // Step 8: let JND be 0.02
+    let JND = 0.02;
 
-      // Step 9: let epsilon be 0.0001
-      let epsilon = 0.0001
+    // Step 9: let epsilon be 0.0001
+    let epsilon = 0.0001;
 
-      // Step 10: let clip(color)| be a function which converts color to destination, 
-      // converts all negative components to zero, converts all components greater that 
-      // one to one, and returns the result
-      const clip = (color: Color) => {
-        const destinationColor = color.accept(this.rgbVisitor) as InstanceType<typeof Color.RGB>;
+    // Step 10: let clip(color)| be a function which converts color to destination,
+    // converts all negative components to zero, converts all components greater that
+    // one to one, and returns the result
+    const clip = (color: Color) => {
+      const destinationColor = color.accept(this.rgbVisitor) as InstanceType<typeof Color.RGB>;
 
       const clippedColor = new Color.RGB(destinationColor.r, destinationColor.g, destinationColor.b);
       clippedColor.clip();
