@@ -3,6 +3,15 @@ import { ToOkLabColorspaceVisitor } from "../../colorspace/oklab";
 import { ToOkLCHColorspaceVisitor } from "../../colorspace/oklch";
 import { ToRGBColorspaceVisitor } from "../../colorspace/rgb";
 
+export const deltaEOK = (oneOklab: InstanceType<typeof Color.OkLab>, twoOklab: InstanceType<typeof Color.OkLab>) => {
+  const ΔL = oneOklab.l - twoOklab.l;
+
+  const Δa = oneOklab.a - twoOklab.a;
+  const Δb = oneOklab.b - twoOklab.b;
+
+  return Math.sqrt(ΔL ** 2 + Δa ** 2 + Δb ** 2);
+};
+
 export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
   rgbVisitor = new ToRGBColorspaceVisitor();
   oklabVisitor  = new ToOkLabColorspaceVisitor();
@@ -52,24 +61,11 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
     } 
     
     // Step 7 : otherwise, let delta(one, two) be a function which returns the deltaEOK of color one compared to color two
-    else {
       const delta = (one: Color, two: Color) => {
-        const oneOklab =  one.accept(this.oklabVisitor) as InstanceType<typeof Color.OkLab>;
-        const twoOklab =  two.accept(this.oklabVisitor) as InstanceType<typeof Color.OkLab>;
-
-        const delta_L = oneOklab.l - twoOklab.l;
-
-        const chroma1 = Math.sqrt(oneOklab.a * oneOklab.a + oneOklab.b * oneOklab.b);
-        const chroma2 = Math.sqrt(twoOklab.a * twoOklab.a + twoOklab.b * twoOklab.b);
-        const delta_C = chroma1 - chroma2;
-      
-        const delta_a = oneOklab.a - twoOklab.a;
-        const delta_b = oneOklab.b - twoOklab.b;
-        
-        const delta_H = Math.sqrt(delta_a * delta_a + delta_b * delta_b - delta_C * delta_C);
-      
-        return Math.sqrt(delta_L * delta_L + delta_C * delta_C + delta_H * delta_H);
-      }
+      const oneOklab = one.accept(this.oklabVisitor) as InstanceType<typeof Color.OkLab>;
+      const twoOklab = two.accept(this.oklabVisitor) as InstanceType<typeof Color.OkLab>;
+      return deltaEOK(oneOklab, twoOklab);
+    };
 
       // Step 8: let JND be 0.02
       let JND = 0.02
