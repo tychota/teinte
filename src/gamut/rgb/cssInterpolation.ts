@@ -79,22 +79,11 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
       const clip = (color: Color) => {
         const destinationColor = color.accept(this.rgbVisitor) as InstanceType<typeof Color.RGB>;
 
-        function clip(value: number, min: number, max: number) {
-          return Math.min(Math.max(value, min), max);
-        }
+      const clippedColor = new Color.RGB(destinationColor.r, destinationColor.g, destinationColor.b);
+      clippedColor.clip();
 
-        return new Color.RGB(
-          clip(destinationColor.r, 0, 1),
-          clip(destinationColor.g, 0, 1),
-          clip(destinationColor.b, 0, 1)
-        )
-      }
-
-
-    }
-
-
-
+      return clippedColor;
+    };
     return color;
   }
   public visitHSLColor(color: InstanceType<typeof Color.HSL>) {
