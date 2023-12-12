@@ -1,9 +1,9 @@
-import { Color } from "../../../colors";
+import { Color } from "../../colors";
 
-import { matMul } from "../../../utils/matrixMultiplication";
-import { srgb_to_linear } from "../../../utils/gamma";
+import { matMul } from "../../utils/matrixMultiplication";
+import { srgb_to_linear } from "../../utils/gamma";
 
-import { XYZ_to_RGB } from "../../../constants";
+import { XYZ_to_RGB } from "../../constants";
 
 export class _LinearRGB extends Color {
   name = "LinearRGB";

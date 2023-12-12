@@ -2,7 +2,7 @@
 
 import { Color } from "../../colors";
 import { ToOkLabColorspaceVisitor } from "../../colorspace/oklab";
-import { _LinearRgbColorspace } from "../../colorspace/oklab/rgb/_linearRgb";
+import { _LinearRgbColorspace } from "../../colorspace/rgb/_linearRgb";
 import { ToOkLCHColorspaceVisitor } from "../../colorspace/oklch";
 import { ToRGBColorspaceVisitor } from "../../colorspace/rgb";
 import { ToXYZColorspaceVisitor } from "../../colorspace/xyz";

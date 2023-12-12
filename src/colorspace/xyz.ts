@@ -1,7 +1,7 @@
 import { Color, ColorspaceVisitor } from "../colors";
 import { matMul } from "../utils/matrixMultiplication";
 
-import { _LinearRgbColorspace } from "./oklab/rgb/_linearRgb";
+import { _LinearRgbColorspace } from "./rgb/_linearRgb";
 import { _LMSColorspace } from "./oklab/_lms";
 import { _LMSg, _LMSgColorspace } from "./oklab/_lmsg";
 
