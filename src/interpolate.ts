@@ -5,6 +5,7 @@ import { ToHSLColorspaceVisitor } from "./colorspace/hsl";
 import { ToOkLabColorspaceVisitor } from "./colorspace/oklab";
 import { ToOkLCHColorspaceVisitor } from "./colorspace/oklch";
 import { ClampToRGBColorVisitor } from "./gamut/rgb/clamp";
+import { CSS4GamutMapping } from "./gamut/rgb/cssInterpolation";
 import {
   GreyOutOfRange,
   OkLabGamutClipAdaptativeL05,
@@ -42,7 +43,8 @@ export function interpolateColor(
     | "adaptativeL05-5"
     | "adaptativeLcusp-005"
     | "adaptativeLcusp-05"
-    | "adaptativeLcusp-5" = "gray"
+    | "adaptativeLcusp-5"
+    | "css4" = "css4"
 ): RGB {
   const c1Rgb = new Color.RGB(c1.r / 255, c1.g / 255, c1.b / 255);
   const c2Rgb = new Color.RGB(c2.r / 255, c2.g / 255, c2.b / 255);
@@ -156,6 +158,9 @@ export function interpolateColor(
       gamutMappingVisitor = new OkLabGamutClipAdaptativeLcusp(5);
       mappedColor = interpolatedColor.accept(gamutMappingVisitor) as InstanceType<typeof Color.RGB>;
       break;
+    case "css4":
+      gamutMappingVisitor = new CSS4GamutMapping();
+      mappedColor = interpolatedColor.accept(gamutMappingVisitor) as InstanceType<typeof Color.RGB>;
   }
 
   // benchmark.recordMark("End");
