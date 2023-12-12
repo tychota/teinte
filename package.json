@@ -1,6 +1,6 @@
 {
   "name": "@bam.tech/teinte",
-  "version": "1.4.0",
+  "version": "1.6.0-beta.1",
   "main": "lib/index.js",
   "devDependencies": {
     "bun-types": "latest",
