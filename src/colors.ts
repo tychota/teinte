@@ -19,6 +19,10 @@ export abstract class Color {
       super();
     }
 
+    clone() {
+      return new RGB(this.r, this.g, this.b);
+    }
+
     clip() {
       this.r = clip(this.r, 0, 1);
       this.g = clip(this.g, 0, 1);
@@ -30,6 +34,10 @@ export abstract class Color {
     name = "HSL";
     constructor(public h: number, public s: number, public l: number) {
       super();
+    }
+
+    clone() {
+      return new HSL(this.h, this.s, this.l);
     }
 
     clip() {
@@ -46,6 +54,10 @@ export abstract class Color {
       super();
     }
 
+    clone() {
+      return new XYZ(this.x, this.y, this.z);
+    }
+
     clip() {
       console.warn("XYZ has no gammut limits.");
       return this;
@@ -57,6 +69,10 @@ export abstract class Color {
       super();
     }
 
+    clone() {
+      return new OkLab(this.l, this.a, this.b);
+    }
+
     clip() {
       console.warn("OkLab has no gammut limits.");
       return this;
@@ -66,6 +82,10 @@ export abstract class Color {
     name = "OkLCH";
     constructor(public l: number, public c: number, public h: number) {
       super();
+    }
+
+    clone() {
+      return new OkLCH(this.l, this.c, this.h);
     }
 
     clip() {
@@ -108,4 +128,5 @@ export abstract class Color {
   }
 
   abstract clip(): unknown;
+  abstract clone(): unknown;
 }
