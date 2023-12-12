@@ -10,6 +10,12 @@ export class _LinearRGB extends Color {
   constructor(public r: number, public g: number, public b: number) {
     super();
   }
+  clip(): void {
+    throw new Error("Method not implemented.");
+  }
+  clone(): void {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export class _LinearRgbColorspace {

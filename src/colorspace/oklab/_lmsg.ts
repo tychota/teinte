@@ -10,6 +10,12 @@ export class _LMSg extends Color {
   constructor(public l: number, public m: number, public s: number) {
     super();
   }
+  clip(): void {
+    throw new Error("Method not implemented.");
+  }
+  clone(): void {
+    throw new Error("Method not implemented.");
+  }
 }
 
 export class _LMSgColorspace {
