@@ -1,7 +1,7 @@
 import { Color, ColorspaceVisitor } from "../colors";
 
 import { linear_to_srgb } from "../utils/gamma";
-import { _LinearRGB, _LinearRgbColorspace } from "./oklab/rgb/_linearRgb";
+import { _LinearRGB, _LinearRgbColorspace } from "./rgb/_linearRgb";
 import { ToOkLabColorspaceVisitor } from "./oklab";
 import { ToXYZColorspaceVisitor } from "./xyz";
 

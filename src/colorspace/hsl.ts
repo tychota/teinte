@@ -1,6 +1,6 @@
 import { Color, ColorspaceVisitor } from "../colors";
 
-import { _LinearRGB, _LinearRgbColorspace } from "./oklab/rgb/_linearRgb";
+import { _LinearRGB, _LinearRgbColorspace } from "./rgb/_linearRgb";
 import { ToRGBColorspaceVisitor } from "./rgb";
 
 export class ToHSLColorspaceVisitor extends ColorspaceVisitor<InstanceType<typeof Color.HSL>> {
