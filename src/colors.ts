@@ -23,6 +23,7 @@ export abstract class Color {
       this.r = clip(this.r, 0, 1);
       this.g = clip(this.g, 0, 1);
       this.b = clip(this.b, 0, 1);
+      return this;
     }
   };
   static HSL = class HSL extends Color {
@@ -35,6 +36,7 @@ export abstract class Color {
       console.warn("It makes no sense to clip a polor space.");
       this.s = clip(this.s, 0, 1);
       this.l = clip(this.l, 0, 1);
+      return this;
     }
   };
 
@@ -46,6 +48,7 @@ export abstract class Color {
 
     clip() {
       console.warn("XYZ has no gammut limits.");
+      return this;
     }
   };
   static OkLab = class OkLab extends Color {
@@ -56,6 +59,7 @@ export abstract class Color {
 
     clip() {
       console.warn("OkLab has no gammut limits.");
+      return this;
     }
   };
   static OkLCH = class OkLCH extends Color {
@@ -66,6 +70,7 @@ export abstract class Color {
 
     clip() {
       console.warn("OkLCH has no gammut limits.");
+      return this;
     }
   };
 
@@ -102,5 +107,5 @@ export abstract class Color {
     }
   }
 
-  abstract clip(): void;
+  abstract clip(): unknown;
 }
