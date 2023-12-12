@@ -97,6 +97,7 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
       let chroma = (min + max) / 2;
 
       // Step 14.2: set current to origin_Oklch and then set the chroma component to chroma
+      current = origin_Oklch.clone();
       current.c = chroma;
 
       // Step 14.3 if min_inGamut is true and also if inGamut(current) is true,
