@@ -2,6 +2,9 @@ import { Color, ColorspaceVisitor } from "../colors";
 
 import { ToOkLabColorspaceVisitor } from "./oklab";
 
+export function constrainAngle(angle: number) {
+  return ((angle % 360) + 360) % 360;
+}
 export class ToOkLCHColorspaceVisitor extends ColorspaceVisitor<InstanceType<typeof Color.OkLCH>> {
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
     const oklab = new ToOkLabColorspaceVisitor().visitRGBColor(color);
@@ -25,10 +28,7 @@ export class ToOkLCHColorspaceVisitor extends ColorspaceVisitor<InstanceType<typ
       h = NaN;
     } else {
       c = Math.sqrt(a * a + b * b);
-      h = (Math.atan2(b, a) * 180) / Math.PI;
-      if (h < 0) {
-        h += 360;
-      }
+      h = constrainAngle((Math.atan2(b, a) * 180) / Math.PI);
     }
 
     const okLch = new Color.OkLCH(l, c, h);
