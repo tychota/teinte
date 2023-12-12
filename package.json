@@ -1,7 +1,17 @@
 {
   "name": "@bam.tech/teinte",
   "version": "1.4.0",
+  "main": "lib/index.js",
+  "devDependencies": {
+    "bun-types": "latest",
+    "esbuild": "^0.19.5",
+    "hdr-histogram-js": "^3.0.0",
+    "typescript": "^5.2.2"
+  },
   "description": "A color interpolation library",
+  "files": [
+    "lib"
+  ],
   "keywords": [
     "oklab",
     "gamut",
@@ -14,18 +24,8 @@
   "people": {
     "author": "Tycho Tatitscheff <tychot@bam.tech>"
   },
-  "main": "lib/index.js",
-  "files": [
-    "lib"
-  ],
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "bun-types": "latest",
-    "esbuild": "^0.19.5",
-    "hdr-histogram-js": "^3.0.0",
-    "typescript": "^5.2.2"
   },
   "scripts": {
     "build": "bun run esbuild index.ts --bundle --platform=node --target=node14 --outdir=lib --allow-overwrite"
