@@ -83,7 +83,65 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
 
       return clippedColor;
     };
-    return color;
+
+    // Step 11: set min to zero
+    let min = 0;
+
+    // Step 12 : set max to the Oklch chroma of origin_Oklch
+    let max = origin_Oklch.c;
+
+    // Step 13: let min_inGamut be a boolean that represents when min is still in gamut, and set it to true
+    let min_inGamut = true;
+
+    let current = new Color.OkLCH(origin_Oklch.l, origin_Oklch.c, origin_Oklch.h);
+
+    // Step 14: while (max - min is greater than epsilon) repeat the following steps
+    while (max - min > epsilon) {
+      // Step 14.1: set chroma to (min + max) /2
+      let chroma = (min + max) / 2;
+
+      // Step 14.2: set current to origin_Oklch and then set the chroma component to chroma
+      current.c = chroma;
+
+      // Step 14.3 if min_inGamut is true and also if inGamut(current) is true,
+      // set min to chroma and continue to repeat these steps
+      if (min_inGamut && inGamut(current)) {
+        console.log('min_inGamut && inGamut(current)', color);
+        min = chroma;
+        continue;
+      }
+
+      // Step 14.4: otherwise, if inGamut(current) is false carry out these steps
+      if (inGamut(current) === false) {
+        // Step 14.4.1 : set clipped to clip(current)
+        const clipped = clip(current);
+
+        // Step 14.4.2 : set E to delta(clipped, current)
+        const E = delta(clipped, current);
+
+        // Step 14.4.3: if E < JND
+        if (E < JND) {
+          // Step 14.4.3.1: if (JND - E < epsilon) return clipped as the gamut mapped color
+          if (JND - E < epsilon) {
+            console.log('JND - E < epsilon', color);
+            return clipped;
+          }
+          // Step 14.4.3.2 : otherwise,
+          else {
+            // console.log('JND - E >= epsilon', color);
+            // Step 14.4.3.2.1 : set min_inGamut to false,
+            min_inGamut = false;
+            // Step 14.4.3.2.2 : set min to chroma
+            min = chroma;
+          }
+        } else {
+          // console.log('E >= JND', color);
+          // Step 14.4.4: otherwise, set max to chroma and continue to repeat these steps
+          max = chroma;
+          continue;
+        }
+      }
+    }
   }
   public visitHSLColor(color: InstanceType<typeof Color.HSL>) {
     const rgb = this.rgbVisitor.visitHSLColor(color);
