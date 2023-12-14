@@ -36,6 +36,17 @@ describe("gamut algorithm", () => {
     expect(gammutMappedColor.g).toBeCloseTo(0);
     expect(gammutMappedColor.b).toBeCloseTo(0);
   });
+
+  it("should return RGB(0.5, 0.5, 0.5) if in gammut (testing Step 6)", () => {
+    // Given
+    const origin = new Color.RGB(0.5, 0.5, 0.5);
+    // When
+    const gammutMappedColor = gammutAlgorithm.visitRGBColor(origin);
+    // Then
+    expect(gammutMappedColor.r).toBeCloseTo(0.5);
+    expect(gammutMappedColor.g).toBeCloseTo(0.5);
+    expect(gammutMappedColor.b).toBeCloseTo(0.5);
+  });
 });
 
 describe("clip", () => {
