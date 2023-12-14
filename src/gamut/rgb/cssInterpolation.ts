@@ -106,7 +106,7 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
       // Step 14.3 if min_inGamut is true and also if inGamut(current) is true,
       // set min to chroma and continue to repeat these steps
       if (min_inGamut && inGamut(current)) {
-        console.log('min_inGamut && inGamut(current)', color);
+        console.log("min_inGamut && inGamut(current)", color);
         min = chroma;
         continue;
       }
@@ -123,7 +123,6 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
         if (E < JND) {
           // Step 14.4.3.1: if (JND - E < epsilon) return clipped as the gamut mapped color
           if (JND - E < epsilon) {
-            console.log('JND - E < epsilon', color);
             return clipped;
           }
           // Step 14.4.3.2 : otherwise,
@@ -142,6 +141,9 @@ export class CSS4GamutMapping extends ToRGBColorspaceVisitor {
         }
       }
     }
+
+    // Step 15: return current as the gamut mapped color
+    return current.accept(this.rgbVisitor) as InstanceType<typeof Color.RGB>;
   }
   public visitHSLColor(color: InstanceType<typeof Color.HSL>) {
     const rgb = this.rgbVisitor.visitHSLColor(color);
