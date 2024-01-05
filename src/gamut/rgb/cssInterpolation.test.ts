@@ -47,6 +47,17 @@ describe("gamut algorithm", () => {
     expect(gammutMappedColor.g).toBeCloseTo(0.5);
     expect(gammutMappedColor.b).toBeCloseTo(0.5);
   });
+
+  it("should return the correct color when JND - E < epsilon (testing Sept Step 14.4.3.1)", () => {
+    // Given
+    const origin = new Color.RGB(0.7493801387258747, -0.37619585533746525, 0.45807639518528487);
+    // When
+    const gammutMappedColor = gammutAlgorithm.visitRGBColor(origin);
+    // Then
+    expect(gammutMappedColor.r).toBeCloseTo(0.5342294534717992);
+    expect(gammutMappedColor.g).toBeCloseTo(0);
+    expect(gammutMappedColor.b).toBeCloseTo(0.369135470389997672);
+  });
 });
 
 describe("clip", () => {

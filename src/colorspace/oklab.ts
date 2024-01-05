@@ -6,7 +6,7 @@ import { _LMSg, _LMSgColorspace } from "./oklab/_lmsg";
 import { ToXYZColorspaceVisitor } from "./xyz";
 import { ToRGBColorspaceVisitor } from "./rgb";
 
-import { LMS_Oklab } from "../constants";
+import { LMSg_OkLab } from "../constants";
 
 export class ToOkLabColorspaceVisitor extends ColorspaceVisitor<InstanceType<typeof Color.OkLab>> {
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
@@ -18,7 +18,7 @@ export class ToOkLabColorspaceVisitor extends ColorspaceVisitor<InstanceType<typ
     return this.visitRGBColor(rgb);
   }
   private visiteLMSgColor(color: _LMSg) {
-    const lab = matMul(LMS_Oklab, [color.l, color.m, color.s]);
+    const lab = matMul(LMSg_OkLab, [color.l, color.m, color.s]);
     const oklab = new Color.OkLab(lab[0], lab[1], lab[2]);
     return this.visitOkLabColor(oklab);
   }

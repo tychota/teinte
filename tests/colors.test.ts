@@ -2,6 +2,7 @@ import { describe, it, expect } from "bun:test";
 import { Color } from "../src/colors";
 import { ToRGBColorspaceVisitor } from "../src/colorspace/rgb";
 import { ToOkLabColorspaceVisitor } from "../src/colorspace/oklab";
+import { _LinearRGB, _LinearRgbColorspace } from "../src/colorspace/rgb/_linearRgb";
 
 describe("colors", () => {
   it("should be able to convert from OkLab to RGB", () => {
@@ -11,11 +12,7 @@ describe("colors", () => {
     const rgbColorspace = new ToRGBColorspaceVisitor();
     // Then
     const rgb = rgbColorspace.visitOkLabColor(lab);
-    const expectedRgb = new Color.RGB(
-      0.5658744623277556,
-      0.28546849365275634,
-      0.37966673439558823
-    );
+    const expectedRgb = new Color.RGB(0.5658744623277556, 0.28546849365275634, 0.37966673439558823);
     expect(rgb).toEqual(expectedRgb);
   });
   it("should be able to convert from RGB to OkLab", () => {
@@ -24,14 +21,7 @@ describe("colors", () => {
     // When
     const okLabColorspace = new ToOkLabColorspaceVisitor();
     const lab = okLabColorspace.visitRGBColor(rgb);
-    // Then
-    const expectedLab = new Color.OkLab(
-      0.5244890538202618,
-      0.09009675437758097,
-      -0.1307119570889005
-    );
-    expect(lab.l).toBeCloseTo(expectedLab.l);
-    expect(lab.a).toBeCloseTo(expectedLab.a);
-    expect(lab.b).toBeCloseTo(expectedLab.b);
+    const expectedLab = new Color.OkLab(0.5244890538202618, 0.09009675437758097, -0.1307119570889005);
+    expect(lab).toEqual(expectedLab);
   });
 });

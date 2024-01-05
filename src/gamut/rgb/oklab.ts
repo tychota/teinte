@@ -23,18 +23,18 @@ abstract class OkLabGamutMapping extends ToRGBColorspaceVisitor {
 
   rgbVisitor = new ToRGBColorspaceVisitor();
 
-  private static COLOR_EPSILON = 0.0001;
-  protected static GAMUT_EPSILON = 0.00001;
+  private static CLAMP_OR_GAMUT_BREAKPOINT = 0.0001;
+  protected static MINIMAL_CHROMA_EPSILON = 0.00001;
 
   public visitRGBColor(color: InstanceType<typeof Color.RGB>) {
     // benchmark.recordMark("[Naive Interpolation] TargetSpace -> RGB (end)");
     if (
-      color.r < 0 - OkLabGamutMapping.COLOR_EPSILON ||
-      color.r > 1 + OkLabGamutMapping.COLOR_EPSILON ||
-      color.g < 0 - OkLabGamutMapping.COLOR_EPSILON ||
-      color.g > 1 + OkLabGamutMapping.COLOR_EPSILON ||
-      color.b < 0 - OkLabGamutMapping.COLOR_EPSILON ||
-      color.b > 1 + OkLabGamutMapping.COLOR_EPSILON
+      color.r < 0 - OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.r > 1 + OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.g < 0 - OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.g > 1 + OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.b < 0 - OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT ||
+      color.b > 1 + OkLabGamutMapping.CLAMP_OR_GAMUT_BREAKPOINT
     ) {
       const okLabColorspace = new ToOkLabColorspaceVisitor();
       // benchmark.recordMark("[Gamut oklab] RGB -> TargetSpace (start)");
@@ -99,7 +99,7 @@ export class GreyOutOfRange extends OkLabGamutMapping {
 }
 
 export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
-  private static HALLEY_STEPS_NB = 3;
+  private static HALLEY_STEPS_NB = 2;
 
   /**
    * Compute the maximum saturation for a given hue that fits in sRGB
@@ -115,36 +115,36 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
     // Select different coefficients depending on which component goes below zero first
     let k0: number, k1: number, k2: number, k3: number, k4: number, wl: number, wm: number, ws: number;
 
-    if (-1.88170328 * a - 0.80936493 * b > 1) {
+    if (-1.8817030993265862 * a - 0.8093650129914288 * b > 1) {
       // Red component goes under zero first
-      k0 = +1.19086277;
-      k1 = +1.76576728;
-      k2 = +0.59662641;
-      k3 = +0.75515197;
-      k4 = +0.56771245;
-      wl = +4.0767416621;
-      wm = -3.3077115913;
-      ws = +0.2309699292;
-    } else if (1.81444104 * a - 1.19445276 * b > 1) {
+      k0 = +1.4324033467840624;
+      k1 = +2.2781278435823524;
+      k2 = +0.7618497882679983;
+      k3 = +1.0260341945433478;
+      k4 = +0.7617909881094428;
+      wl = +4.0767416360759592;
+      wm = -3.3077115392580625;
+      ws = +0.2309699031821046;
+    } else if (1.8144407988011 * a - 1.1944526678052367 * b > 1) {
       // Green component goes under zero first
-      k0 = +0.73956515;
-      k1 = -0.45954404;
-      k2 = +0.08285427;
-      k3 = +0.1254107;
-      k4 = +0.14503204;
-      wl = -1.2684380046;
-      wm = +2.6097574011;
-      ws = -0.3413193965;
+      k0 = +0.7379402524434013;
+      k1 = -0.4573974268862046;
+      k2 = +0.0815143817557270;
+      k3 = +0.1248577516844205;
+      k4 = -0.1434403763698065;
+      wl = -1.2684379732850315;
+      wm = +2.6097573492876882;
+      ws = -0.3413193760026572;
     } else {
       // Blue component goes under zero first
-      k0 = +1.35733652;
-      k1 = -0.00915799;
-      k2 = -1.1513021;
-      k3 = -0.50559606;
-      k4 = +0.00692167;
-      wl = -0.0041960863;
-      wm = -0.7034186147;
-      ws = +1.707614701;
+      k0 = +1.3195478056858045;
+      k1 = -0.0002163824563852;
+      k2 = -1.1134545687345891;
+      k3 = -0.4851285430136246;
+      k4 = -0.0035353711153529;
+      wl = -0.0041960761386755;
+      wm = -0.7034186179359361;
+      ws = +1.7076146940746113;
     }
 
     // Approximate max saturation using a polynomial
@@ -154,9 +154,9 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
     // this gives an error less than 10e6, except for some blue hues where the dS/dh is close to infinite
     // this should be sufficient for most applications, otherwise do two/three steps
 
-    let k_l = +0.3963377774 * a + 0.2158037573 * b;
-    let k_m = -0.1055613458 * a - 0.0638541728 * b;
-    let k_s = -0.0894841775 * a - 1.291485548 * b;
+    let k_l = +0.3963377773761749 * a + 0.2158037573099136 * b;
+    let k_m = -0.1055613458156586 * a - 0.0638541728258133 * b;
+    let k_s = -0.0894841775298119 * a - 1.2914855480194092 * b;
 
     const halleyStep = () => {
       let l_ = 1 + maxSaturation * k_l;
@@ -238,9 +238,9 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
         let dL = L1 - L0;
         let dC = C1 - 0;
 
-        let k_l = +0.3963377774 * a + 0.2158037573 * b;
-        let k_m = -0.1055613458 * a - 0.0638541728 * b;
-        let k_s = -0.0894841775 * a - 1.291485548 * b;
+        let k_l = +0.3963377773761749 * a + 0.2158037573099136 * b;
+        let k_m = -0.1055613458156586 * a - 0.0638541728258133 * b;
+        let k_s = -0.0894841775298119 * a - 1.2914855480194092 * b;
 
         let l_dt = dL + dC * k_l;
         let m_dt = dL + dC * k_m;
@@ -265,23 +265,23 @@ export abstract class OkLabInterpolateGamutMapping extends OkLabGamutMapping {
         let mdt2 = 6 * m_dt * m_dt * m_;
         let sdt2 = 6 * s_dt * s_dt * s_;
 
-        let cr = l * 4.0767416621 + m * -3.3077115913 + s * 0.2309699292 - 1;
-        let cr_dt = ldt * 4.0767416621 + mdt * -3.3077115913 + sdt * 0.2309699292;
-        let cr_dt2 = ldt2 * 4.0767416621 + mdt2 * -3.3077115913 + sdt2 * 0.2309699292;
+        let cr = l * 4.0767416360759592 + m * -3.3077115392580625 + s * 0.2309699031821046 - 1;
+        let cr_dt = ldt * 4.0767416360759592 + mdt * -3.3077115392580625 + sdt * 0.2309699031821046;
+        let cr_dt2 = ldt2 * 4.0767416360759592 + mdt2 * -3.3077115392580625 + sdt2 * 0.2309699031821046;
 
         let u_cr = cr_dt / (cr_dt * cr_dt - 0.5 * cr * cr_dt2);
         let t_cr = -cr * u_cr;
 
-        let cg = l * -1.2684380046 + m * 2.6097574011 + s * -0.3413193965 - 1;
-        let cg_dt = ldt * -1.2684380046 + mdt * 2.6097574011 + sdt * -0.3413193965;
-        let cg_dt2 = ldt2 * -1.2684380046 + mdt2 * 2.6097574011 + sdt2 * -0.3413193965;
+        let cg = l * -1.2684379732850315 + m * 2.6097573492876882 + s * -0.3413193760026572 - 1;
+        let cg_dt = ldt * -1.2684379732850315 + mdt * 2.6097573492876882 + sdt * -0.3413193760026572;
+        let cg_dt2 = ldt2 * -1.2684379732850315 + mdt2 * 2.6097573492876882 + sdt2 * -0.3413193760026572;
 
         let u_cg = cg_dt / (cg_dt * cg_dt - 0.5 * cg * cg_dt2);
         let t_cg = -cg * u_cg;
 
-        let cb = l * -0.0041960863 + m * -0.7034186147 + s * 1.707614701 - 1;
-        let cb_dt = ldt * -0.0041960863 + mdt * -0.7034186147 + sdt * 1.707614701;
-        let cb_dt2 = ldt2 * -0.0041960863 + mdt2 * -0.7034186147 + sdt2 * 1.707614701;
+        let cb = l * -0.0041960761386755 + m * -0.7034186179359361 + s * 1.7076146940746113 - 1;
+        let cb_dt = ldt * -0.0041960761386755 + mdt * -0.7034186179359361 + sdt * 1.7076146940746113;
+        let cb_dt2 = ldt2 * -0.0041960761386755 + mdt2 * -0.7034186179359361 + sdt2 * 1.7076146940746113;
 
         let u_cb = cb_dt / (cb_dt * cb_dt - 0.5 * cb * cb_dt2);
         let t_cb = -cb * u_cb;
@@ -308,7 +308,7 @@ export class OkLabGamutClipPreserveChroma extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -328,7 +328,7 @@ export class OkLabGamutClipProjectTo05 extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -349,7 +349,7 @@ export class OkLabGamutClipProjectToLCusp extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -375,7 +375,7 @@ export class OkLabGamutClipAdaptativeL05 extends OkLabInterpolateGamutMapping {
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
@@ -401,7 +401,7 @@ export class OkLabGamutClipAdaptativeLcusp extends OkLabInterpolateGamutMapping 
   gamutMap(color: InstanceType<typeof Color.OkLab>): InstanceType<typeof Color.OkLab> {
     const oklab = color;
     const l = oklab.l;
-    const c = Math.max(OkLabGamutMapping.GAMUT_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
+    const c = Math.max(OkLabGamutMapping.MINIMAL_CHROMA_EPSILON, Math.sqrt(oklab.a * oklab.a + oklab.b * oklab.b));
 
     const a_norm = oklab.a / c;
     const b_norm = oklab.b / c;
